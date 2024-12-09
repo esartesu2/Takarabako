@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practica hiragana</title>
+    <style>
+        body {
+            font-family: Open Sans, sans-serif;
+            text-align: center;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        .hiragana {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .option {
+            background: #fff;
+            border: 2px solid #ddd;
+            padding: 20px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .option:hover {
+            background: #f0f0f0;
+        }
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .scoreboard {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        .reset-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #495a97;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .reset-button:hover {
+            background-color: #36436f;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="scoreboard">
+            Aciertos: <span id="correct-score">0</span> | Fallos: <span id="wrong-score">0</span>
+        </div>
+        <div class="hiragana" id="hiragana-character">あ</div>
+        <div class="options" id="options-container"></div>
+        <button class="reset-button" onclick="resetGame()">Reiniciar</button>
+    </div>
+
+    <script>
+        const hiraganaMap = {
+            "a": "あ", "i": "い", "u": "う", "e": "え", "o": "お",
+        };
+
+        let correctScore = 0;
+        let wrongScore = 0;
+
+        function startGame() {
+            const romajiKeys = Object.keys(hiraganaMap);
+            const randomKey = romajiKeys[Math.floor(Math.random() * romajiKeys.length)];
+            const correctHiragana = hiraganaMap[randomKey];
+            const options = generateOptions(randomKey);
+
+            document.getElementById("hiragana-character").innerText = correctHiragana;
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = ""; // Elimina opciones anteriores
+
+            options.forEach(option => {
+                const button = document.createElement("div");
+                button.className = "option";
+                button.innerText = option;
+                button.addEventListener("click", () => checkAnswer(option, randomKey, button));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function generateOptions(correct) {
+            const allRomaji = Object.keys(hiraganaMap);
+            const options = [correct];
+            while (options.length < 4) {
+                const randomOption = allRomaji[Math.floor(Math.random() * allRomaji.length)];
+                if (!options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            return options.sort(() => Math.random() - 0.5); // Aleatorizacion de opciones
+        }
+
+        function checkAnswer(selected, correct, button) {
+            const allButtons = document.querySelectorAll(".option");
+            allButtons.forEach(btn => btn.classList.add("disabled"));
+            
+            if (selected === correct) {
+                correctScore++;
+                button.classList.add("correct");
+            } else {
+                wrongScore++;
+                button.classList.add("wrong");
+                // iluminar opcion
+                document.querySelectorAll(".option").forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add("correct");
+                    }
+                });
+            }
+
+            updateScoreboard();
+            setTimeout(() => {
+                startGame();
+            }, 500);
+        }
+
+        function updateScoreboard() {
+            document.getElementById("correct-score").innerText = correctScore;
+            document.getElementById("wrong-score").innerText = wrongScore;
+        }
+
+        function resetGame() {
+            correctScore = 0;
+            wrongScore = 0;
+            updateScoreboard();
+            startGame();
+        }
+
+        // iniciar al abrir pagina
+        startGame();
+    </script>
+</body>
+</html>
